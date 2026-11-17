@@ -2441,3 +2441,37 @@ test('the image scanner limits move with the server', function () {
         ->and($settings->image_scan_cpus)->toBe(2.0)
         ->and($settings->image_scan_memory_mb)->toBe(4096);
 });
+
+test('transfer preserves custom server ssh port and checks endpoint conflict by port', function () {
+    $this->server->forceFill(['port' => 2222])->saveQuietly();
+    $this->server->settings->forceFill(['is_jump_server' => true])->saveQuietly();
+
+    $bundle = $this->exporter->export($this->server);
+
+    expect(data_get($bundle, 'server.port'))->toBe(2222)
+        ->and(data_get($bundle, 'server.settings.is_jump_server'))->toBeTrue();
+
+    // Checking same IP with a different port (22) does not conflict with existing server on port 2222
+    $checkPort22 = collect($this->importer->importChecks(new_public_id(), $this->server->ip, $this->team->id, preserveUuids: false, serverPort: 22))
+        ->firstWhere('field', 'server.ip');
+    expect($checkPort22['ok'])->toBeTrue();
+
+    // Checking same IP with matching port 2222 conflicts
+    $checkPort2222 = collect($this->importer->importChecks(new_public_id(), $this->server->ip, $this->team->id, preserveUuids: false, serverPort: 2222))
+        ->firstWhere('field', 'server.ip');
+    expect($checkPort2222['ok'])->toBeFalse()
+        ->and($checkPort2222['message'])->toContain('SSH port 2222');
+
+    // Remove source server from instance before importing so endpoint is free
+    $this->service->forceDelete();
+    $this->application->forceDelete();
+    $this->database->forceDelete();
+    $this->server->forceDelete();
+
+    $targetTeam = Team::factory()->create();
+    $result = $this->importer->import($bundle, teamId: $targetTeam->id, preserveUuids: false, adoptMode: false);
+
+    $importedServer = Server::where('uuid', $result['server_uuid'])->firstOrFail();
+    expect((int) $importedServer->port)->toBe(2222)
+        ->and((bool) $importedServer->settings->is_jump_server)->toBeTrue();
+});

@@ -18,7 +18,7 @@ When you add a model or a setting to the transfer, add it to this file too.
 |---|---|---|
 | ✅ | Non-root SSH user | a dev VM with the `ubuntu-non-root` profile |
 | ✅ | Name, description | any text |
-| ➕ | Port | other than 22, if the VM allows it |
+| ✅ | Port | other than 22, if the VM allows it |
 | ✅ | Proxy: redirect | redirect enabled + target URL |
 | ✅ | Proxy: custom error page | custom HTML (`proxy_error_page`) |
 | ➕ | Server role / build server | mark a second server as a build server |
@@ -45,7 +45,7 @@ When you add a model or a setting to the transfer, add it to this file too.
 | ✅ | GeoIP | on, MaxMind license key, refresh 14 days |
 | ✅ | Log drains | New Relic (key + base URI), Axiom (dataset, key + edge domain), custom (config + parser), one of them enabled |
 | ✅ | Cloudflare tunnel | tunnel on, tunnel ID, account ID, Cloudflare integration token selected, and the DNS record of the SSH hostname. Expected: the record moves with the server; the source keeps it only for a take back (not owned) |
-| ➕ | Jump server flag | on (on a server that is only a jump host) |
+| ✅ | Jump server flag | on (on a server that is only a jump host) |
 
 ## 3. Server-level records
 

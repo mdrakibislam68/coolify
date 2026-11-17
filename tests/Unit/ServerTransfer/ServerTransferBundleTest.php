@@ -127,3 +127,28 @@ test('validate rejects garbage database port values', function (array $attribute
     'public port too high' => [['public_port' => 70000], 'public_port'],
     'public port text' => [['public_port' => '5432; id'], 'public_port'],
 ]);
+
+test('validate accepts valid server ssh port', function (int|string $port) {
+    $bundle = bundleTestMinimalBundle();
+    $bundle['server']['port'] = $port;
+
+    expect(ServerTransferBundle::validate($bundle)['errors'])->toBe([]);
+})->with([
+    'default 22' => 22,
+    'custom 2222' => 2222,
+    'high port' => 65535,
+    'string port' => '2222',
+]);
+
+test('validate rejects invalid server ssh port', function (mixed $port) {
+    $bundle = bundleTestMinimalBundle();
+    $bundle['server']['port'] = $port;
+
+    $errors = ServerTransferBundle::validate($bundle)['errors'];
+    expect(implode(' ', $errors))->toContain('server.port');
+})->with([
+    'zero' => 0,
+    'negative' => -1,
+    'too high' => 70000,
+    'text' => 'not-a-port',
+]);

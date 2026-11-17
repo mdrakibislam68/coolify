@@ -172,6 +172,10 @@ class ServerTransferBundle
             return $errors;
         }
 
+        if (array_key_exists('server', $bundle) && is_array($bundle['server'])) {
+            self::check($errors, 'server.port', $bundle['server']['port'] ?? null, ['required', 'integer', 'between:1,65535']);
+        }
+
         foreach (self::items(data_get($bundle, 'destinations')) as $i => $destination) {
             self::check($errors, "destinations.{$i}.network", $destination['network'] ?? null, ['nullable', 'string', 'max:255', 'regex:'.ValidationPatterns::DOCKER_NETWORK_PATTERN]);
         }
