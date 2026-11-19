@@ -1805,6 +1805,10 @@ function applicationParser(Application $resource, int $pull_request_id = 0, ?int
                     //   default:
                     //     ipv4_address: 192.168.203.254
                     $networks_temp->put($key, $network);
+                } elseif (is_null($network) && is_string($key)) {
+                    // networks:
+                    //   custom-net: null
+                    $networks_temp->put($key, null);
                 }
             }
             // A preview renames its services to "<name>-pr-<id>". The alias keeps the original name as a hostname
@@ -3217,6 +3221,10 @@ function serviceParser(Service $resource): Collection
                     //   default:
                     //     ipv4_address: 192.168.203.254
                     $networks_temp->put($key, $network);
+                } elseif (is_null($network) && is_string($key)) {
+                    // networks:
+                    //   custom-net: null
+                    $networks_temp->put($key, null);
                 }
             }
             foreach ($baseNetwork as $key => $network) {
